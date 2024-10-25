@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class TimelycheckApplication {
 
 	public static void main(String[] args) {
-
+       // setup check for collabration.. test
 		SpringApplication.run(TimelycheckApplication.class, args);
 	}
 
