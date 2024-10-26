@@ -1,8 +1,10 @@
 package com.americinn.timelycheck.implementation;
+import com.americinn.timelycheck.entity.PasswordResetToken;
 import com.americinn.timelycheck.entity.Staff;
 import com.americinn.timelycheck.mapper.StaffMapper;
 import com.americinn.timelycheck.model.EmailDetails;
 import com.americinn.timelycheck.model.StaffModel;
+import com.americinn.timelycheck.repository.PasswordResetTokenRepository;
 import com.americinn.timelycheck.repository.StaffRepository;
 import com.americinn.timelycheck.service.EmailService;
 import com.americinn.timelycheck.service.StaffService;
@@ -10,11 +12,12 @@ import com.americinn.timelycheck.utility.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 public class StaffServiceImpl implements StaffService {
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
     @Autowired
     private StaffMapper staffMapper;
     @Autowired private EmailService emailService;
@@ -22,10 +25,10 @@ public class StaffServiceImpl implements StaffService {
     public StaffServiceImpl(StaffRepository staffRepository) {
         this.staffRepository = staffRepository;
     }
-
+    @Autowired
+     private PasswordResetTokenRepository tokenRepository;
     @Autowired
     private TokenService tokenService;
-
 
 
     @Override
@@ -36,10 +39,29 @@ public class StaffServiceImpl implements StaffService {
          staff.setModifiedBy("Admin");
          staff.setEmail(staffModel.getEmail());
          staff.setDigitalPin(1432);
-       sendResetPasswordEmail(staffModel.getEmail(),tokenService.generateToken());
-         return  staffRepository.save(staff);
+        staff= staffRepository.save(staff);
+       sendResetPasswordEmail(staffModel.getEmail(),tokenService.generateToken(staff).getToken());
+         return staff;
     }
 
+    @Override
+    public String resetPasscode(String token, String newPassword) {
+        if (tokenService.validateToken(token)) {
+            PasswordResetToken passwordResetToken = tokenRepository.findByToken(token);
+             Staff staff= staffRepository.findByStaffId(passwordResetToken.getStaff().getStaffId());
+            staff.setPassword(newPassword);
+            staffRepository.save(staff);
+            return "Password updated successfully";
+        } else {
+            return "Invalid or expired token.";
+        }
+
+    }
+
+    @Override
+    public List<Staff> getOnboardStaff() {
+        return staffRepository.findAll();
+    }
 
 
     // optimize it later
@@ -53,8 +75,10 @@ public class StaffServiceImpl implements StaffService {
 
 
 
-    public void save(Staff user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Hash the password
+    public void saveUserPassword(Staff user) {
+       // user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        user.setPassword(user.getPassword());
         staffRepository.save(user);
     }
 
