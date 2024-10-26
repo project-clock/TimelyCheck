@@ -1,5 +1,6 @@
 package com.americinn.timelycheck.controller;
 
+import com.americinn.timelycheck.entity.Staff;
 import com.americinn.timelycheck.model.StaffModel;
 import com.americinn.timelycheck.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class StaffOnboardController {
   private StaffService staffService;
 
     @PostMapping("/staff")
-    public ResponseEntity<StaffModel>  createStaff(@RequestBody StaffModel staffmodel){
+    public ResponseEntity<Staff>  createStaff(@RequestBody StaffModel staffmodel){
 return  ResponseEntity.ok().body(staffService.onboardStaff(staffmodel) );
     }
 }
