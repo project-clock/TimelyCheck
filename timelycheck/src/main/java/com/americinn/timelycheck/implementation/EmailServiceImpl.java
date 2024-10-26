@@ -20,13 +20,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String sendSimpleMail(EmailDetails details) {
-
-        // Try block to check for exceptions
         try {
-//   public EmailDetails(String recipient, String msgBody, String subject, String attachment) {
             SimpleMailMessage mailMessage
                     = new SimpleMailMessage();
-
             mailMessage.setFrom(sender);
             mailMessage.setTo(details.getRecipient());
             mailMessage.setText(details.getMsgBody());

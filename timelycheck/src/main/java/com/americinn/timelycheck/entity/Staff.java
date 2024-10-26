@@ -10,6 +10,7 @@ public class Staff {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="staff_id")
     private Long staffId;
 
     @Column(nullable = false)
@@ -26,6 +27,17 @@ public class Staff {
 
     @Column(nullable = false)
     private String email;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Column(name="password",nullable = false)
+    private String password;
 
     @Column(name = "created_by", nullable = false)
     private String createdBy;

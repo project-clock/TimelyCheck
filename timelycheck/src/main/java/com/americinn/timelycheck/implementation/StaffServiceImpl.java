@@ -6,11 +6,15 @@ import com.americinn.timelycheck.model.StaffModel;
 import com.americinn.timelycheck.repository.StaffRepository;
 import com.americinn.timelycheck.service.EmailService;
 import com.americinn.timelycheck.service.StaffService;
+import com.americinn.timelycheck.utility.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class StaffServiceImpl implements StaffService {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private StaffMapper staffMapper;
     @Autowired private EmailService emailService;
@@ -18,6 +22,9 @@ public class StaffServiceImpl implements StaffService {
     public StaffServiceImpl(StaffRepository staffRepository) {
         this.staffRepository = staffRepository;
     }
+
+    @Autowired
+    private TokenService tokenService;
 
 
 
@@ -29,12 +36,26 @@ public class StaffServiceImpl implements StaffService {
          staff.setModifiedBy("Admin");
          staff.setEmail(staffModel.getEmail());
          staff.setDigitalPin(1432);
-
-//   public EmailDetails(String recipient, String msgBody, String subject, String attachment) {
-        String status
-                = emailService.sendSimpleMail(new EmailDetails("sandeep.rayala14@gmail.com","new employee registered",
-                "Employee OnBoarded",null));
+       sendResetPasswordEmail(staffModel.getEmail(),tokenService.generateToken());
          return  staffRepository.save(staff);
+    }
+
+
+
+    // optimize it later
+    public void sendResetPasswordEmail(String email, String token) {
+        String resetUrl = "http://localhost:8080/reset-password?token=" + token; // Adjust URL as needed
+        emailService.sendSimpleMail(new EmailDetails(email,resetUrl,
+                "Clockify -- Click the link to reset your password: ",null));
+    }
+
+
+
+
+
+    public void save(Staff user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword())); // Hash the password
+        staffRepository.save(user);
     }
 
 
